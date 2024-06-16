@@ -1,39 +1,20 @@
 import { legacy_createStore as createStore } from "redux";
+import { configureStore, createAction, createReducer, createSlice } from "@reduxjs/toolkit";
 
-const ADD = "ADD";
-const DELETE = "DELETE";
+const toDos = createSlice({
+  name: "toDosReducer",
+  initialState: [],
+  reducers: {
+    add: (state, action) => {
+      state.unshift({ text: action.payload, id: Date.now() });
+    },
+    remove: (state, action) => state.filter((toDo) => toDo.id !== action.payload),
+  },
+});
 
-const addToDo = (text) => {
-  return {
-    type: ADD,
-    text,
-    id: Date.now(),
-  };
-};
+//확장프로그램 사용하면 redux상태를 브라우저에서 학인할 수 있음(Redux Developer Tools, toolkit사용할 필요 없음)
+const store = configureStore({ reducer: toDos.reducer });
 
-const deleteToDo = (id) => {
-  return {
-    type: DELETE,
-    id,
-  };
-};
-
-const reducer = (state = [], action) => {
-  switch (action.type) {
-    case ADD:
-      return [{ text: action.text, id: action.id }, ...state];
-    case DELETE:
-      return state.filter((toDo) => toDo.id !== action.id);
-    default:
-      return state;
-  }
-};
-
-const store = createStore(reducer);
-
-export const actionCreators = {
-  addToDo,
-  deleteToDo,
-};
+export const { add, remove } = toDos.actions;
 
 export default store;
